@@ -6,9 +6,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Entity
@@ -17,18 +22,23 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
-    @Id @GeneratedValue(strategy = GenerationType.UUID)
+public class User implements UserDetails {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
     @Column(unique = true, nullable = false, length = 255)
     private String email;
 
+    @Column(name = "password_hash", nullable = false)
+    private String passwordHash;
+
     @Column(name = "first_name", length = 100)
-    private String nom;
+    private String firstName;
 
     @Column(name = "last_name", length = 100)
-    private String prenom;
+    private String lastName;
 
     @Column(length = 20)
     private String phone;
@@ -37,72 +47,77 @@ public class User {
     @Column(nullable = false)
     private Role role = Role.STUDENT;
 
-    @Column(length = 2)
-    private String language = "fr";
-
-    @Column(length = 10)
-    private String theme = "light";
-
     @Column(name = "email_verified")
     private boolean emailVerified = false;
 
-    @Column(name = "phone_verified")
-    private boolean phoneVerified = false;
+    @Column(name = "oauth_provider")
+    private String oauthProvider; // "GOOGLE", "FACEBOOK", null si email/password
 
-    @Column(name = "two_factor_secret")
-    private String twoFactorSecret;
-
-    @Column(name = "two_factor_enabled")
-    private boolean twoFactorEnabled = false;
-
-    @Column(name = "account_locked")
-    private boolean accountLocked = false;
-
-    @Column(name = "account_expired")
-    private boolean accountExpired = false;
-
-    @Column(name = "credentials_expired")
-    private boolean credentialsExpired = false;
+    @Column(name = "oauth_id")
+    private String oauthId; // ID fourni par Google/Facebook
 
     @Column(name = "enabled")
     private boolean enabled = true;
 
-    @Column(name = "failed_attempts")
-    private int failedAttempts = 0;
-
-    @Column(name = "locked_until")
-    private LocalDateTime lockedUntil;
-
-    @Column(name = "last_login_at")
-    private LocalDateTime lastLoginAt;
-
-    @Column(name = "last_login_ip")
-    private String lastLoginIp;
-
+    @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name = "deleted_at")
-    private LocalDateTime deletedAt;
+    // ===== UserDetails Methods =====
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    private StudentProfile studentProfile;
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
+    }
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<RefreshToken> refreshTokens = new ArrayList<>();
+    @Override
+    public String getPassword() {
+        return passwordHash;
+    }
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Session> sessions = new ArrayList<>();
+    @Override
+    public String getUsername() {
+        return email;
+    }
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<PasswordResetToken> passwordResetTokens = new ArrayList<>();
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<EmailVerificationToken> emailVerificationTokens = new ArrayList<>();
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<AuditLog> auditLogs = new ArrayList<>();
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    // ===== Helper Methods =====
+
+    public boolean isAdmin() {
+        return role == Role.ADMIN;
+    }
+
+    public String getFullName() {
+        if (firstName != null && lastName != null) {
+            return firstName + " " + lastName;
+        }
+        return email;
+    }
+
+    public boolean isOAuthUser() {
+        return oauthProvider != null;
+    }
 }

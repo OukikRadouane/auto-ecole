@@ -2,14 +2,21 @@ package com.auto.auth.Entity;
 
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "refresh_tokens")
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class RefreshToken {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
@@ -30,21 +37,6 @@ public class RefreshToken {
     @Column(name = "revoked")
     private boolean revoked = false;
 
-    @Column(name = "device_id")
-    private String deviceId;
-
-    @Column(name = "device_name")
-    private String deviceName;
-
-    @Column(name = "ip_address", length = 45)
-    private String ipAddress;
-
-    @Column(name = "user_agent")
-    private String userAgent;
-
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
 }
