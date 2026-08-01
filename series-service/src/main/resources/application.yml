@@ -1,6 +1,66 @@
-spring.application.name=series-service
-server.port=8082
+spring:
+  application:
+    name: series-service
+  datasource:
+    password: password
+    url: jdbc:mysql://${eureka.instance.hostname}:3306/series_db
+    username: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQLDialect
+  security:
+    user:
+      name: user
+      password: 000
+  config:
+    import: optional:configserver:http://localhost:8092
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+    consumer:
+      group-id: series-service
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.auto.auth.Event, com.auto.series.Event"
+        spring.json.use.type.headers: false
+        spring.json.value.default.type: com.auto.series.Event.consumed.UserDeletedEvent
+  data:
+    redis:
+      host: localhost
+      port: 6379
 
-spring.datasource.url=jdbc:mysql://localhost:3306/series_db
-spring.datasource.password=password
-spring.datasource.username=root
+server:
+  port: 8082
+
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    service-url:
+      defaultZone: http://localhost:8091/eureka
+minio:
+  endpoint: http://localhost:9000
+  access-key: ${MINIO_ACCESS_KEY:minioadmin}
+  secret-key: ${MINIO_SECRET_KEY:minioadmin}
+  buckets:
+    images: series-images
+    audios: series-audios
+
+jwt:
+  secret: ${JWT_SECRET:une-cle-secrete-tres-longue-a-changer-en-production-256-bits-minimum}
+
+app:
+  kafka:
+    topics:
+      serie-created: serie-created
+      serie-updated: serie-updated
+      serie-deleted: serie-deleted
+      exam-submitted: exam-submitted
+      user-deleted: user-deleted   # topic écouté, publié par auth-service

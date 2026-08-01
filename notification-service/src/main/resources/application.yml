@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: notification-service
+  config:
+    import: optional:configserver:http://localhost:8092
+server:
+  port: 8086
+
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    service-url:
+      defaultZone: http://localhost:8091/eureka
+
+# api-sms=Ho64dcC3bxkxngNtaw3vspHrYoied4OC
