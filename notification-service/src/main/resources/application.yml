@@ -1,16 +1,137 @@
 spring:
   application:
     name: notification-service
+
   config:
     import: optional:configserver:http://localhost:8092
-server:
-  port: 8086
+#server:
+ # port: 8086
 
-eureka:
-  instance:
-    hostname: localhost
-  client:
-    service-url:
-      defaultZone: http://localhost:8091/eureka
+#eureka:
+# instance:
+  #  hostname: localhost
+  #client:
+   # service-url:
+    #  defaultZone: http://localhost:8091/eureka
 
 # api-sms=Ho64dcC3bxkxngNtaw3vspHrYoied4OC
+
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3306/notification_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true}
+    username: ${SPRING_DATASOURCE_USERNAME:root}
+    password: ${SPRING_DATASOURCE_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+    show-sql: false
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+
+  security:
+    jwt:
+      secret: ${JWT_SECRET:your-256-bit-secret-key-for-notification-service}
+      expiration: 86400000
+
+  # ─── SMTP Configuration ───
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+      # ─── CONFIGURATION PRODUCER (Pour le Controller de test) ───
+    producer:
+        key-serializer: org.apache.kafka.common.serialization.StringSerializer
+        value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+        properties:
+          spring.json.type.mapping: >
+            user-created:com.auto.notification.events.UserCreatedEvent,
+            exam-completed:com.auto.notification.events.ExamCompletedEvent,
+            registration-processed:com.auto.notification.events.RegistrationProcessedEvent,
+            registration-rejected:com.auto.notification.events.RegistrationRejectedEvent,
+            milestone-reached:com.auto.notification.events.MilestoneEvent,
+            user-inactive:com.auto.notification.events.InactiveUserEvent
+    consumer:
+      group-id: notification-service-group-v8
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+        spring.json.type.mapping: >
+          exam-completed:com.auto.notification.events.ExamCompletedEvent,
+          registration-processed:com.auto.notification.events.RegistrationProcessedEvent,
+          registration-rejected:com.auto.notification.events.RegistrationRejectedEvent,
+          registration-submitted:com.auto.notification.events.RegistrationSubmittedEvent,
+          user-created:com.auto.notification.events.UserCreatedEvent,
+          milestone-reached:com.auto.notification.events.MilestoneEvent,
+          user-inactive:com.auto.notification.events.InactiveUserEvent
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+
+server:
+  port: 8086
+  servlet:
+    context-path: /api
+
+logging:
+  level:
+    com.auto.notification: DEBUG
+    org.springframework.mail: INFO
+    org.springframework.kafka: INFO
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+# Kafka Topics
+kafka:
+  topics:
+    exam-events: exam-submitted
+    registration-processed: registration-processed
+    registration-rejected: registration-rejected
+    user-events: user-registered
+    milestone-reached: milestone-reached
+    user-inactive: user-inactive
+    registration-events: registration-events
+
+
+
+# ─── DÉSACTIVATION D'EUREKA CLIENT ───
+eureka:
+  client:
+    enabled: false
+
+# CORS
+cors:
+  allowed-origins: http://localhost:3000,http://localhost:4200
+

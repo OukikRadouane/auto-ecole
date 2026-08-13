@@ -1,31 +1,109 @@
 spring:
   application:
     name: tutorial-service
+
+  #datasource:
+   # password: password
+    #url: jdbc:mysql://${eureka.instance.hostname}:3306/tutorial_db
+    #username: root
+    #driver-class-name: com.mysql.cj.jdbc.Driver
+
+  #security:
+   # user:
+    #  name: user
+     # password: 000
+  config:
+    import: optional:configserver:http://localhost:8092
+
+
+
+
+# discovery-service 8761
+
+    # ─── DÉSACTIVATION SÉCURITÉ DE BASE ───
+    autoconfigure:
+      exclude:
+        - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
+        - org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 500MB
+      max-request-size: 500MB
+  # ─── BASE DE DONNÉES (MySQL) ───
   datasource:
-    password: password
-    url: jdbc:mysql://${eureka.instance.hostname}:3306/tutorial_db
+    url: jdbc:mysql://localhost:3306/tutorial_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     username: root
+    password:
     driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+
   jpa:
     hibernate:
       ddl-auto: update
-    database: mysql
-    database-platform: org.hibernate.dialect.MySQLDialect
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        format_sql: true
+    show-sql: true
+
+  # ─── SECURITÉ JWT ───
   security:
-    user:
-      name: user
-      password: 000
-  config:
-    import: optional:configserver:http://localhost:8092
+    jwt:
+      secret: ${JWT_SECRET:your-256-bit-secret-key-for-tutorial-service}
+      expiration: 86400000
+
+  # ─── MESSAGERIE (Kafka) ───
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      retries: 3
+      acks: all
+    consumer:
+      group-id: tutorial-service-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "*"
+      auto-offset-reset: earliest
+
+# ─── SERVEUR & API ───
 server:
   port: 8083
+  servlet:
+    context-path: /api
 
+# ─── STOCKAGE (MinIO / S3) ───
+minio:
+  endpoint: ${MINIO_ENDPOINT:http://localhost:9000}
+  access-key: ${MINIO_ACCESS_KEY:minioadmin}
+  secret-key: ${MINIO_SECRET_KEY:minioadmin}
+  bucket: ${MINIO_BUCKET:tutorials}
+
+# ─── TOPICS KAFKA INTERNES ───
+kafka:
+  topics:
+    tutorial-events: tutorial-events
+    content-events: content-events
+    series-events: series-events
+
+# ─── FFMPEG ───
+ffmpeg:
+  path: ${FFMPEG_PATH:/usr/local/bin/ffmpeg}
+  ffprobe-path: ${FFPROBE_PATH:/usr/local/bin/ffprobe}
+  # Utiliser le répertoire temporaire de Java (portable Windows/Linux)
+  temp-dir: ${FFMPEG_TEMP_DIR:${java.io.tmpdir}/tutorial-ffmpeg}
+
+
+# ─── DÉSACTIVATION D'EUREKA CLIENT ───
 eureka:
   instance:
     hostname: localhost
   client:
     service-url:
       defaultZone: http://localhost:8091/eureka
-
-
-# discovery-service 8761
+    enabled: false

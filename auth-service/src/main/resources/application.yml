@@ -55,8 +55,10 @@ spring:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       acks: all
 
+
 server:
   port: 8081
+
 
 eureka:
   instance:
