@@ -21,7 +21,7 @@ public interface QuestionRepository extends JpaRepository<Question, String>{
 
     long countBySeriesId(String seriesId);
 
-    @Query("SELECT q FROM Question q WHERE q.seriesId IN :seriesIds")
+    @Query("SELECT q FROM Question q WHERE q.serieId IN :seriesIds")
     List<Question> findAllBySeriesIdIn(@Param("seriesIds") List<String> seriesIds);
 
     // pour décaler les index lors d'un réordonnancement
@@ -30,7 +30,7 @@ public interface QuestionRepository extends JpaRepository<Question, String>{
     @Query("UPDATE Question q SET q.orderIndex = :orderIndex WHERE q.id = :questionId")
     void updateOrderIndex(@Param("questionId") String questionId, @Param("orderIndex") Integer orderIndex);
 
-    void deleteBySeriesId(String seriesId);
+    void deleteBySerieId(String seriesId);
 
     Object countBySerieId(String serieId);
 

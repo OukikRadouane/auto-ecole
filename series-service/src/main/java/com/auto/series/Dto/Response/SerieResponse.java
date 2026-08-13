@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -17,6 +18,7 @@ public class SerieResponse {
     private String description;
     private Difficulty difficulty;
     private boolean premium;
+    private BigDecimal price;
     private int questionCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

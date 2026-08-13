@@ -27,7 +27,7 @@ public class ExamController {
             @Valid @RequestBody ExamStartRequest request,
             Authentication authentication
             ){
-        ExamResponse response = examService.startExam(request.getSeriesId(), authentication.getName());
+        ExamResponse response = examService.startExam(request.getSerieId(), authentication.getName());
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 

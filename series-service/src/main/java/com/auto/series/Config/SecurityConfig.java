@@ -2,6 +2,7 @@ package com.auto.series.Config;
 
 import com.auto.series.Security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -18,6 +19,7 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http){
         http
                 .csrf(csrf -> csrf.disable())

@@ -139,7 +139,7 @@ public class SerieServiceImpl implements SerieService {
         List<Question> copiedQuestions = new ArrayList<>();
         for (Question q : original.getQuestions()) {
             copiedQuestions.add(Question.builder()
-                    .seriesId(savedCopy.getId())
+                    .serieId(savedCopy.getId())
                     .text(q.getText())
                     .imageUrl(q.getImageUrl())
                     .questionType(q.getQuestionType())

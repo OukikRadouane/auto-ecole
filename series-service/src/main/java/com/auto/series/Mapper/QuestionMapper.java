@@ -24,7 +24,7 @@ public class QuestionMapper {
 
     public Question toEntity(QuestionRequest request, String serieId, int orderIndex) {
         return Question.builder()
-                .seriesId(serieId)
+                .serieId(serieId)
                 .text(request.getText())
                 .imageUrl(request.getImageUrl())
                 .questionType(request.getQuestionType())

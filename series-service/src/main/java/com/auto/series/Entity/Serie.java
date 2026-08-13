@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +42,9 @@ public class Serie {
 
     @Column(name = "is_premium")
     private boolean premium = false;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal price;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

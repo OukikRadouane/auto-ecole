@@ -22,6 +22,7 @@ public class SerieMapper {
                 .description(serie.getDescription())
                 .difficulty(serie.getDifficulty())
                 .premium(serie.isPremium())
+                .price(serie.getPrice())
                 .questionCount(serie.getQuestionCount())
                 .createdAt(serie.getCreatedAt())
                 .updatedAt(serie.getUpdatedAt())
@@ -62,5 +63,6 @@ public class SerieMapper {
         serie.setDescription(request.getDescription());
         serie.setDifficulty(request.getDifficulty());
         serie.setPremium(request.isPremium());
+        serie.setPrice(request.getPrice());
     }
 }

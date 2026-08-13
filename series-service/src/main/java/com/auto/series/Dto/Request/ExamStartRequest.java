@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class ExamStartRequest {
     @NotBlank
-    private String seriesId;
+    private String serieId;
 }
