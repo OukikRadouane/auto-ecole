@@ -1,5 +1,14 @@
 spring:
   application:
-    name:api-gateway=8090
+    name: api-gateway
+  config:
+    import: optional:configserver:http://localhost:8092
+
 server:
   port: 8090
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    service-url:
+      defaultZone: http://localhost:8091/eureka
