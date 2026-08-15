@@ -44,4 +44,28 @@ public class GatewayRoutesConfig {
                 .filter(lb("SERIES-SERVICE"))
                 .build();
     }
+
+    @Bean
+    public RouterFunction<ServerResponse> tutorialServiceRoute(){
+        return route("tutorial-service-route")
+                .route(path("/api/tutorials/**").or(path("/api/admin/tutorials/**")), http())
+                .filter(lb("TUTORIAL-SERVICE"))
+                .build();
+    }
+
+    @Bean
+    public RouterFunction<ServerResponse> registrationServiceRoute(){
+        return route("registration-service-route")
+                .route(path("/api/registrations/**").or(path("/api/admin/registrations/**")), http())
+                .filter(lb("REGISTRATION-SERVICE"))
+                .build();
+    }
+
+    @Bean
+    public RouterFunction<ServerResponse> notificationServiceRoute(){
+        return route("notification-service-route")
+                .route(path("/api/notifications/**"), http())
+                .filter(lb("NOTIFICATION-SERVICE"))
+                .build();
+    }
 }

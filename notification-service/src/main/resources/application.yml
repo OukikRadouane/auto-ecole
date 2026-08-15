@@ -128,8 +128,12 @@ kafka:
 
 # ─── DÉSACTIVATION D'EUREKA CLIENT ───
 eureka:
+  instance:
+    hostname: localhost
   client:
-    enabled: false
+    service-url:
+      defaultZone: http://localhost:8091/eureka
+    enabled: true
 
 # CORS
 cors:

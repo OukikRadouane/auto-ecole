@@ -7,7 +7,7 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/notifications/test/kafka")
+@RequestMapping("/notifications/test/kafka")
 public class KafkaTestController {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;

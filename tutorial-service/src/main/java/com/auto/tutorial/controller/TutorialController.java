@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/tutorials")
+@RequestMapping("/tutorials")
 @RequiredArgsConstructor
 @Tag(name = "Tutorial API", description = "API publique pour les tutoriels")
 @SecurityRequirement(name = "Bearer Authentication")
