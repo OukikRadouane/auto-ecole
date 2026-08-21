@@ -37,7 +37,7 @@ public class NotificationController {
     public ResponseEntity<NotificationResponse> sendEmail(
             @Valid @RequestBody EmailRequest request,
             @AuthenticationPrincipal UserPrincipal userPrincipal) {
-        String userId = (userPrincipal != null) ? userPrincipal.getId() : "zzzz";
+
 
         try {
             emailService.sendHtmlEmail(request.getTo(), request.getSubject(), request.getBody());
@@ -45,8 +45,7 @@ public class NotificationController {
 
             String logId = UUID.randomUUID().toString();
             logService.logSuccess(
-                    //userPrincipal.getId(),
-                    userId,
+                    userPrincipal.getId(),
                     "EMAIL",
                     "manual",
                     request.getSubject(),

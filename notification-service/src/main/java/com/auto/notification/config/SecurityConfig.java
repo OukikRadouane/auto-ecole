@@ -39,8 +39,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
-                        //.requestMatchers("/api/notifications/**").hasAnyRole("CANDIDAT", "ADMIN")
-                        .requestMatchers("/api/notifications/**").permitAll()
+                        .requestMatchers("/api/notifications/**").hasAnyRole("STUDENT", "ADMIN")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

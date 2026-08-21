@@ -34,7 +34,7 @@
         <maven.compiler.target>25</maven.compiler.target>
 
         <!-- FIX: Ajout des versions manquantes pour tes dépendances -->
-        <jjwt.version>0.12.6</jjwt.version>
+        <jjwt.version>0.11.5</jjwt.version>
         <minio.version>8.5.10</minio.version>
         <mapstruct.version>1.6.3</mapstruct.version>
     </properties>

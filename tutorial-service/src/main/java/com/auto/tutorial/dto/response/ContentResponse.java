@@ -17,6 +17,7 @@ public class ContentResponse {
     private String title;
     private String description;
     private String contentType;
+    private String fileKey;
     private String storageUrl;
     private String fileType;
     private Integer displayOrder;

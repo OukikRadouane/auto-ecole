@@ -1,4 +1,4 @@
-package com.auto.notification.security;
+package com.auto.tutorial.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;

@@ -1,4 +1,4 @@
-package com.auto.registration.security;
+package com.auto.tutorial.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -33,6 +32,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         final String authHeader = request.getHeader("Authorization");
 
+        //  Pas de token -> on passe (les endpoints publics seront gérés par SecurityConfig)
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
@@ -42,38 +42,57 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             final String token = authHeader.substring(7);
 
             if (jwtService.validateToken(token)) {
+                //  Extraction des informations
                 String userId = jwtService.getUserId(token);
                 String email = jwtService.getEmail(token);
                 String role = jwtService.getRole(token);
 
+                log.debug("🔐 Authentification réussie: userId={}, email={}, role={}", userId, email, role);
+
+                // 👤 Création du UserPrincipal
                 UserPrincipal userPrincipal = UserPrincipal.builder()
                         .id(userId)
                         .email(email)
                         .role(role)
                         .build();
 
-                // 1. S'assurer que le rôle est préfixé par "ROLE_" si ce n'est pas déjà le cas
-                List<SimpleGrantedAuthority> authorities = Collections.emptyList();
-                if (role != null && !role.isBlank()) {
-                    String formattedRole = role.startsWith("ROLE_") ? role : "ROLE_" + role;
-                    authorities = List.of(new SimpleGrantedAuthority(formattedRole));
-                }
+                // ️ Création des autorités
+                String formattedRole = role != null && !role.startsWith("ROLE_")
+                        ? "ROLE_" + role
+                        : role;
 
-                // 2. Transmettre la liste des authorities au 3ème paramètre
-                Authentication auth = new UsernamePasswordAuthenticationToken(
+                List<SimpleGrantedAuthority> authorities = role != null && !role.isBlank()
+                        ? List.of(new SimpleGrantedAuthority(formattedRole))
+                        : List.of();
+
+                //  Mise en contexte Spring Security
+                Authentication authentication = new UsernamePasswordAuthenticationToken(
                         userPrincipal,
-                        null,
-                        authorities //  Transmettre les autorités ici
+                        token,
+                        authorities
                 );
 
-                SecurityContextHolder.getContext().setAuthentication(auth);
-                log.debug("Authenticated user: {} with role: {}", email, role);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+                log.info("✅ User '{}' authentifié avec succès", email);
             }
 
         } catch (Exception e) {
-            log.error("Authentication error: {}", e.getMessage());
+            log.error("❌ Erreur d'authentification: {}", e.getMessage());
+            // On ne bloque pas le flux, laisse SecurityConfig gérer l'accès
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    //  Ne pas filtrer les endpoints publics (optimisation)
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getRequestURI();
+        return path.startsWith("/swagger-ui")
+                || path.startsWith("/v3/api-docs")
+                || path.startsWith("/actuator")
+                || path.equals("/tutorials")
+                || path.startsWith("/tutorials/categories")
+                || path.equals("/tutorials/difficulties");
     }
 }

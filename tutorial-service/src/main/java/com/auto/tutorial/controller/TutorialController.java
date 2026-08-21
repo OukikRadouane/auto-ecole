@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -42,12 +43,14 @@ public class TutorialController {
 
     @Operation(summary = "Récupérer le détail d'un tutoriel")
     @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('STUDENT', 'ADMIN')")
     public ResponseEntity<TutorialDetailResponse> getTutorialDetail(@PathVariable String id) {
         return ResponseEntity.ok(tutorialService.getTutorialDetail(id));
     }
 
     @Operation(summary = "Récupérer les tutoriels d'une catégorie")
     @GetMapping("/category/{categoryId}")
+    @PreAuthorize("hasAnyRole('STUDENT', 'ADMIN')")
     public ResponseEntity<List<TutorialResponse>> getTutorialsByCategory(@PathVariable String categoryId) {
         return ResponseEntity.ok(tutorialService.getTutorialsByCategory(categoryId));
     }
@@ -60,12 +63,14 @@ public class TutorialController {
 
     @Operation(summary = "Récupérer les catégories avec tutoriels publiés")
     @GetMapping("/categories/with-tutorials")
+    @PreAuthorize("hasAnyRole('STUDENT', 'ADMIN')")
     public ResponseEntity<List<CategoryResponse>> getCategoriesWithTutorials() {
         return ResponseEntity.ok(categoryService.getCategoriesWithPublishedTutorials());
     }
 
     @Operation(summary = "Récupérer tous les tutoriels publiés (liste simple)")
     @GetMapping("/all")
+    @PreAuthorize("hasAnyRole('STUDENT', 'ADMIN')")
     public ResponseEntity<List<TutorialResponse>> getAllPublishedTutorials() {
         return ResponseEntity.ok(tutorialService.getPublishedTutorialsList());
     }
